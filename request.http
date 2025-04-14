@@ -1,0 +1,132 @@
+//P.S. Aide complete de mon meilleur ami ChatGPT
+
+
+### Créer un administrateur (si pas encore en base)
+POST http://localhost:3000/auth/admin
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+###
+
+### Connexion de l’admin
+POST http://localhost:3000/auth/admin
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+# Copie le token retourné ici pour les prochaines requêtes
+@adminToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQ0NjAxOTEyfQ.77Wxlj7uOvOLtxgbbMyARxPB41LovPjbXrIEkjiR7os
+
+###
+
+### Créer un nouvel utilisateur (via admin)
+POST http://localhost:3000/auth/new
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "User1",
+  "email": "user1@example.com",
+  "password": "user123",
+  "role": "user"
+}
+
+###
+
+### Créer un technicien
+POST http://localhost:3000/auth/new
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Technicien1",
+  "email": "tech1@example.com",
+  "password": "tech123",
+  "role": "technician"
+}
+
+### Connexion du technicien
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "tech1@example.com",
+  "password": "tech123"
+}
+
+### Connexion de l’utilisateur
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "user1@example.com",
+  "password": "user123"
+}
+
+# Copie le token retourné ici pour tester les routes user
+@userToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDQ2MDIwMzV9.tXdKigg0JTiRbybGk-x5ONguqJplwRlYEmGIfEu4l2A
+
+###
+
+### Créer un ticket (user ou technicien connecté)
+POST http://localhost:3000/tickets
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "title": "Problème d'accès",
+  "description": "Je n'arrive pas à me connecter",
+  "status": "open",
+  "userId": 2,
+  "technicianId": null,
+  "createdAt": "2025-04-13"
+}
+
+###
+
+### Récupérer tous les tickets (technicien = tous, user = les siens)
+GET http://localhost:3000/tickets
+Authorization: Bearer {{userToken}}
+
+###
+
+### Voir les détails d’un ticket
+GET http://localhost:3000/tickets/1
+Authorization: Bearer {{userToken}}
+
+###
+
+### Modifier un ticket (nécessite un technicien connecté)
+# Remplacer par un token de technicien
+@technicianToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6InRlY2huaWNpYW4iLCJpYXQiOjE3NDQ2MDIyOTV9.iOx7IF_yVMsZKJD9zbDHTJwmkuOcHKO9kGhZEXFmlPk
+
+PUT http://localhost:3000/tickets/1
+Authorization: Bearer {{technicianToken}}
+Content-Type: application/json
+
+{
+  "title": "Accès rétabli",
+  "description": "Connexion maintenant possible",
+  "status": "closed",
+  "userId": 2,
+  "technicianId": 3,
+  "createdAt": "2025-04-13",
+  "closedAt": "2025-04-14"
+}
+
+###
+
+### Voir les détails d’un ticket
+GET http://localhost:3000/tickets/1
+Authorization: Bearer {{technicianToken}}
+
+### Supprimer un ticket (admin seulement)
+DELETE http://localhost:3000/admin/tickets/1
+Authorization: Bearer {{adminToken}}
